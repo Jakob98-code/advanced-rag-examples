@@ -5,7 +5,7 @@ import chromadb
 from chromadb.config import Settings
 from llama_index.core import PromptTemplate
 
-st.title("VtDat Chatbot")
+st.title("FRM Chatbot")
 
 client = AzureOpenAI(api_key=st.secrets["OPENAI_API_KEY"], 
                 api_version="2024-05-01-preview", 
@@ -28,7 +28,7 @@ collection_load = chroma_client_load.get_collection(name="vtdat", embedding_func
 ###
 
 if "openai_model" not in st.session_state:
-    st.session_state["openai_model"] = "gpt-4"
+    st.session_state["openai_model"] = "gpt4"
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -38,13 +38,13 @@ for message in st.session_state.messages:
         st.markdown(message["content"])
 
 # Define the default prompt template
-default_prompt = """You are a helpful assistant that answers questions about the course material from "Philosophy of Computer Science (VtDat)" using provided context.
+default_prompt = """You are a helpful assistant that answers questions about the course material from "Financial Risk Management" using provided context.
     Context information is below.
     ---------------------
     {context}
     ---------------------
-    Given the context information and not prior knowledge, answer the query. Always provide an answer in the Danish language.
-    Below the answer, the source of the answer should be provided including file_name and page number.
+    Given the context information and not prior knowledge, answer the query. Always provide an answer in the English language.
+    Below the answer, the source of the answer should be provided including file_name, chapter and which section the source is found.
     Query: {query}
     Answer: 
     """
@@ -55,17 +55,17 @@ prompt_template = st.sidebar.text_area("Prompt Template", default_prompt)
 
 if query := st.chat_input("What is up?"):
     #RAG
-    result = collection_load.query(query_texts=[query], n_results=5)
+    result = collection_load.query(query_texts=[query], n_results=10)
 
     context = result["documents"][0]
     prompt = PromptTemplate(
-    """You are a helpful assistant that answers questions about the course material from "Philosophy of Computer Science (VtDat)" using provided context.
+    """You are a helpful assistant that answers questions about the course material from "Financial Risk Management" using provided context.
     Context information is below.
     ---------------------
     {context}
     ---------------------
-    Given the context information and not prior knowledge, answer the query. Always provide an answer in the Danish language. 
-    Below the answer, the source of the answer should be provided including file_name and page number.
+    Given the context information and not prior knowledge, answer the query. Always provide an answer in the English language. 
+    Below the answer, the source of the answer should be provided including file_name, chapter and which section the source is found in.
     Query: {query}
     Answer: 
     """,

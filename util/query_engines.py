@@ -36,7 +36,7 @@ class VerboseHyDEQueryTransform(BaseQueryTransform):
     As described in `[Precise Zero-Shot Dense Retrieval without Relevance Labels]
     (https://arxiv.org/abs/2212.10496)`
     """
-
+    # print('Class is being evaluated')
     def __init__(
         self,
         llm: Optional[LLMPredictorType] = None,
@@ -72,13 +72,16 @@ class VerboseHyDEQueryTransform(BaseQueryTransform):
     def _run(self, query_bundle: QueryBundle, metadata: Dict) -> QueryBundle:
         """Run query transform."""
         query_str = query_bundle.query_str
+        # print('Generating hypothetical doc')
         hypothetical_doc = self._llm.predict(self._hyde_prompt, context_str=query_str)
+        # print('Hypothetical doc created')
         if self._verbose:
             display(
                 Markdown(
                     f"<b>[VerboseHyDEQueryTransform]<b> Generated hypothetical document: {str(hypothetical_doc)}\n\n-------------------\n\n"
                 )
             )
+        
         embedding_strs = [hypothetical_doc]
         if self._include_original:
             embedding_strs.extend(query_bundle.embedding_strs)
@@ -292,4 +295,9 @@ class VerboseStepBackQueryEngine(CustomQueryEngine):
         )
         response = self.llm.complete(result_prompt)        
         
-        return str(response)
+        # return str(response)
+        return {
+            "response": str(response),
+            "normal_context": normal_context,
+            "step_back_context": step_back_context
+        }
